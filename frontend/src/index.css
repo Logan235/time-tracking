@@ -1,0 +1,225 @@
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&family=Inter:wght@400;500;600;700&display=swap');
+@import "tailwindcss";
+@plugin "daisyui";
+
+/* Configure dark mode to use class strategy */
+@custom-variant dark (&:where(.dark, .dark *));
+
+@theme {
+  --color-plum: #54245f;
+  --color-mint: #abe6cf;
+  --font-sans: "Plus Jakarta Sans", "Inter", system-ui, sans-serif;
+}
+
+@layer base {
+  html {
+    font-family: var(--font-sans);
+    /* Smooth theme transitions */
+    transition: background-color 0.2s ease, color 0.2s ease;
+  }
+  
+  /* Smooth theme transitions for all elements */
+* {
+  transition: background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease, fill 0.2s ease, stroke 0.2s ease;
+}
+  
+  /* Typography scale theo quy chuẩn: tránh font-bold (700) cho body text */
+  h1, h2 {
+    @apply font-semibold tracking-tight;
+  }
+  h3, h4 {
+    @apply font-medium tracking-tight;
+  }
+  body, p, span, label, input, button, textarea {
+    @apply font-normal;
+  }
+  /* Nút bấm dùng font-medium */
+  button {
+    @apply font-medium;
+  }
+}
+
+/* Custom keyframes for modal animations */
+@keyframes fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes zoom-in {
+  from { opacity: 0; transform: scale(0.95); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+/* ========================================
+   FLAT DESIGN UTILITY CLASSES - PART 1: BUTTONS
+   ======================================== */
+
+/* Nút chính: Plum background, bo tròn hoàn toàn (pill) */
+.btn-primary {
+  @apply bg-plum text-white rounded-full px-6 py-3 
+         transition-all duration-200 ease-in-out
+         hover:opacity-90 hover:-translate-y-0.5
+         active:scale-95
+         focus:outline-none focus:ring-2 focus:ring-mint focus:ring-offset-2
+         disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:translate-y-0;
+}
+
+/* Nút phụ: Outline Plum, bo tròn hoàn toàn */
+.btn-secondary {
+  @apply border-2 border-plum text-plum bg-transparent rounded-full px-6 py-3
+         transition-all duration-200 ease-in-out
+         hover:bg-plum hover:text-white
+         active:scale-95
+         focus:outline-none focus:ring-2 focus:ring-plum focus:ring-offset-2
+         disabled:opacity-50 disabled:cursor-not-allowed;
+}
+
+/* Nút Ghost/Muted: Mint background nhẹ, bo tròn */
+.btn-ghost {
+  @apply bg-mint/20 text-plum rounded-full px-5 py-2.5
+         transition-all duration-200 ease-in-out
+         hover:bg-mint/40
+         active:scale-95
+         focus:outline-none focus:ring-2 focus:ring-mint focus:ring-offset-2;
+}
+
+/* Nút nguy hiểm (Destructive): Đỏ, bo tròn */
+.btn-destructive {
+  @apply bg-red-600 text-white rounded-full px-6 py-3
+         transition-all duration-200 ease-in-out
+         hover:bg-red-700
+         active:scale-95
+         focus:outline-none focus:ring-2 focus:ring-red-400 focus:ring-offset-2;
+}
+
+/* ========================================
+   FLAT DESIGN UTILITY CLASSES - PART 2: CARDS
+   ======================================== */
+
+/* Card phẳng cơ bản: không shadow, bo góc md/lg, viền mỏng */
+.card-flat {
+  @apply bg-white dark:bg-gray-950 rounded-lg border border-gray-200 dark:border-gray-800
+         transition-all duration-200 ease-in-out;
+}
+
+/* Card có thể click: hiệu ứng scale nhẹ khi hover */
+.card-flat-interactive {
+  @apply bg-white dark:bg-gray-950 rounded-lg border border-gray-200 dark:border-gray-800
+         transition-all duration-200 ease-in-out
+         cursor-pointer
+         hover:scale-[1.015] hover:border-plum/50
+         active:scale-[0.99];
+}
+
+/* Card header/footer sections */
+.card-flat-header {
+  @apply px-6 py-4 border-b border-gray-200 dark:border-gray-800;
+}
+.card-flat-body {
+  @apply p-6;
+}
+.card-flat-footer {
+  @apply px-6 py-4 border-t border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-gray-950/50 rounded-b-lg;
+}
+
+/* ========================================
+   FLAT DESIGN UTILITY CLASSES - PART 3: INPUTS & FORMS
+   ======================================== */
+
+.input-flat {
+  @apply w-full bg-white dark:bg-gray-900 border border-gray-300 dark:border-gray-700
+         rounded-full px-4 py-3 text-black dark:text-white placeholder-gray-400
+         transition-all duration-200 ease-in-out
+         focus:outline-none focus:ring-2 focus:ring-mint focus:border-transparent
+         hover:border-gray-400 dark:hover:border-gray-600
+         disabled:bg-gray-100 dark:disabled:bg-gray-800 disabled:cursor-not-allowed;
+}
+
+.label-flat {
+  @apply block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5;
+}
+
+.form-group-flat {
+  @apply space-y-1.5;
+}
+
+/* ========================================
+   FLAT DESIGN UTILITY CLASSES - PART 4: BADGES/TAGS
+   ======================================== */
+
+.badge-flat {
+  @apply inline-flex items-center px-3 py-1 rounded-full text-sm font-medium
+         transition-colors duration-200;
+}
+.badge-plum { @apply bg-plum/10 text-plum hover:bg-plum/20; }
+.badge-mint { @apply bg-mint/20 text-green-800 dark:text-green-200 hover:bg-mint/30; }
+.badge-gray { @apply bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400; }
+
+/* ========================================
+   FLAT DESIGN UTILITY CLASSES - PART 5: CONTAINERS & LAYOUT
+   ======================================== */
+
+.container-main {
+  @apply w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8;
+}
+
+.section-space {
+  @apply py-12 sm:py-16 lg:py-20;
+}
+
+.grid-responsive {
+  @apply grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4;
+}
+.grid-responsive-2 {
+  @apply grid gap-6 sm:grid-cols-1 lg:grid-cols-2;
+}
+.grid-responsive-3 {
+  @apply grid gap-6 sm:grid-cols-1 lg:grid-cols-3;
+}
+
+/* ========================================
+   FLAT DESIGN UTILITY CLASSES - PART 6: NAVIGATION / NAVBAR
+   ======================================== */
+
+.navbar-flat {
+  @apply w-full bg-white/80 dark:bg-black/80 backdrop-blur-sm
+         border-b border-gray-200 dark:border-gray-800
+         px-4 sm:px-6 lg:px-8 py-3;
+}
+
+.nav-link {
+  @apply text-sm font-medium text-gray-600 dark:text-gray-400
+         px-3 py-2 rounded-full
+         transition-colors duration-200
+         hover:text-plum hover:bg-plum/5
+         focus:outline-none focus:ring-2 focus:ring-mint;
+}
+.nav-link-active {
+  @apply text-plum bg-plum/5 font-medium;
+}
+
+/* ========================================
+   FLAT DESIGN UTILITY CLASSES - PART 7: MODAL / DIALOG
+   ======================================== */
+
+.modal-overlay {
+  @apply fixed inset-0 z-50 flex items-center justify-center 
+         bg-black/40 backdrop-blur-sm
+         animate-[fade-in_200ms_ease-out];
+}
+.modal-content {
+  @apply bg-white dark:bg-gray-950 rounded-xl border border-gray-200 dark:border-gray-800
+         w-full max-w-lg mx-4 p-6
+         animate-[zoom-in_200ms_ease-out];
+}
+
+/* ========================================
+   FLAT DESIGN UTILITY CLASSES - PART 8: SCROLLBAR
+   ======================================== */
+
+.scrollbar-flat {
+  @apply scrollbar-thin scrollbar-track-transparent scrollbar-thumb-gray-300 dark:scrollbar-thumb-gray-600
+         hover:scrollbar-thumb-gray-400 dark:hover:scrollbar-thumb-gray-500;
+}
+
+

@@ -1,3 +1,80 @@
+import type { CalendarEvent, Group } from '../store/useTimeTrackStore';
+
+export interface GroupStat {
+  groupId: string;
+  groupName: string;
+  color: string;
+  totalMinutes: number;
+  formattedTime: string;
+}
+
+export interface DateRangeInfo {
+  startDateStr: string;
+  endDateStr: string;
+  startDateISO: string;
+  endDateISO: string;
+  totalDays: number;
+}
+
+export function formatMinutesToHoursMins(minutes: number): string {
+  if (minutes <= 0) return '0 phút';
+  const hrs = Math.floor(minutes / 60);
+  const mins = Math.round(minutes % 60);
+  if (hrs === 0) return `${mins} phút`;
+  if (mins === 0) return `${hrs} giờ`;
+  return `${hrs} giờ ${mins} phút`;
+}
+
+export function getEventDurationMinutes(event: CalendarEvent): number {
+  if (event.isMultiDay) {
+    const hours = event.hoursPerDay || 2;
+    return hours * 60;
+  }
+  if (event.start?.dateTime && event.end?.dateTime) {
+    const start = new Date(event.start.dateTime);
+    const end = new Date(event.end.dateTime);
+    const diffMs = end.getTime() - start.getTime();
+    return Math.max(0, Math.floor(diffMs / (1000 * 60)));
+  }
+  return 0;
+}
+
+export function getEventDateRange(event: CalendarEvent): string[] {
+  if (event.start?.dateTime) {
+    const d = new Date(event.start.dateTime);
+    if (!isNaN(d.getTime())) {
+      return [d.toISOString().split('T')[0]];
+    }
+  }
+  if (event.start?.date) {
+    return [event.start.date];
+  }
+  return [];
+}
+
+// Pastel color palette matching the main theme (plum, mint, amber, pink, blue, lavender)
+export const PASTEL_COLORS = [
+  "#d8b4fe", // Pastel plum (main theme)
+  "#a7f3d0", // Pastel mint
+  "#fef08a", // Pastel amber
+  "#fbcfe8", // Pastel pink
+  "#93c5fd", // Pastel blue
+  "#c4b5fd", // Pastel lavender
+  "#fef9c3", // Pastel yellow
+  "#ffd6a5", // Pastel peach
+  "#bde0fe", // Pastel light blue
+  "#d8b4fe", // Pastel lilac
+];
+
+export function getNextPastelColor(usedColors: string[]): string {
+  const available = PASTEL_COLORS.filter((c) => !usedColors.includes(c));
+  if (available.length > 0) {
+    return available[0];
+  }
+  // If all pastel colors are used, return a random pastel
+  return PASTEL_COLORS[Math.floor(Math.random() * PASTEL_COLORS.length)];
+}
+
 export function calculateDashboardStats(
   events: CalendarEvent[],
   groups: Group[],
@@ -156,15 +233,15 @@ export function calculateDashboardStats(
     "flexible",
   ];
   const timeOfDayColors = [
-    "#1e293b",
-    "#334155",
-    "#f59e0b",
-    "#fbbf24",
-    "#3b82f6",
-    "#60a5fa",
-    "#8b5cf6",
-    "#a78bfa",
-    "#cbd5e1",
+    "#d8b4fe", // Pastel plum
+    "#c4b5fd", // Pastel lavender
+    "#fde047", // Pastel amber
+    "#fef08a", // Pastel yellow
+    "#93c5fd", // Pastel blue
+    "#bfdbfe", // Pastel light blue
+    "#fbcfe8", // Pastel pink
+    "#fce7f3", // Pastel light pink
+    "#e0e7ff", // Pastel indigo
   ];
 
   const timeOfDaySeries = timeOfDayKeys.map((k) =>
@@ -194,6 +271,25 @@ export function calculateDashboardStats(
     };
   });
 
+  // Calculate dynamic maximum hours for Y axis (rounded up to next multiple of 4)
+  let maxDailyHours = 0;
+  sortedDates.forEach((dateStr) => {
+    let dayMins = 0;
+    Object.values(dailyMap[dateStr] || {}).forEach((m) => {
+      dayMins += m;
+    });
+    const dayHours = dayMins / 60;
+    if (dayHours > maxDailyHours) {
+      maxDailyHours = dayHours;
+    }
+  });
+
+  let yAxisMax = 4;
+  if (maxDailyHours > 0) {
+    yAxisMax = Math.ceil(maxDailyHours / 4) * 4;
+    if (yAxisMax === 0) yAxisMax = 4;
+  }
+
   return {
     totalTrackedTimeFormatted: formatMinutesToHoursMins(totalTrackedMinutes),
     totalTrackedHours: Number((totalTrackedMinutes / 60).toFixed(1)),
@@ -207,6 +303,8 @@ export function calculateDashboardStats(
       series: barChartSeries,
       rawDates: sortedDates,
       dailyMap,
+      yAxisMax,
+      maxDailyHours,
     },
   };
 }

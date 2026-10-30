@@ -1,0 +1,62 @@
+# Render Blueprint for TimeTracking Application
+# This file defines both backend and frontend services for deployment on Render
+
+services:
+  # Backend API Service
+  - type: web
+    name: time-tracking-backend
+    env: node
+    plan: free
+    buildCommand: cd backend && pnpm install && pnpm build
+    startCommand: cd backend && pnpm start:prod
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 4000
+      - key: MONGO_URI
+        sync: false
+      - key: JWT_SECRET
+        generateValue: true
+      - key: JWT_EXPIRATION
+        value: 7d
+      - key: GOOGLE_CLIENT_ID
+        sync: false
+      - key: GOOGLE_CLIENT_SECRET
+        sync: false
+      - key: GOOGLE_CALLBACK_URL
+        value: https://time-tracking-backend.onrender.com/api/auth/google/callback
+      - key: FRONTEND_URL
+        value: https://time-tracking-frontend.onrender.com
+      - key: THROTTLE_TTL
+        value: 60000
+      - key: THROTTLE_LIMIT
+        value: 100
+    healthCheckPath: /api/health
+
+  # Frontend Static Site
+  - type: web
+    name: time-tracking-frontend
+    env: static
+    plan: free
+    buildCommand: pnpm install && pnpm run build:frontend
+    staticPublishPath: frontend/dist
+    envVars:
+      - key: VITE_API_URL
+        value: https://time-tracking-backend.onrender.com/api
+    headers:
+      - path: /*
+        name: X-Frame-Options
+        value: DENY
+      - path: /*
+        name: X-Content-Type-Options
+        value: nosniff
+      - path: /*
+        name: Referrer-Policy
+        value: strict-origin-when-cross-origin
+
+databases:
+  - name: time-tracking-db
+    databaseName: time_tracking
+    user: time_tracking_user
+    plan: free
